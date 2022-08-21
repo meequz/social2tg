@@ -1,0 +1,129 @@
+from .common import Image, Post, SeleniumSource, Source, Video
+from .utils import find_elem
+
+
+class InstagramSource(Source):
+    """
+    Base for any Instagram clients, and common Instgram logic
+    """
+    def get_last_posts(self):
+        """
+        Get list of Post instances of posts
+        which appeared after the last check
+        """
+        raise NotImplementedError
+
+
+class GramhirPost(Post):
+    """
+    Post handler for Gramhir source
+    """
+    def __init__(self, url=None, soup=None):
+        self._url = url
+        self._soup = soup
+
+    @property
+    def text(self):
+        if self._text is None:
+            if descrs := self._soup.select('div.single-photo-description'):
+                self._text = (descrs[0].text or '').strip()
+        return self._text
+
+    @property
+    def author(self):
+        if self._author is None:
+            if nicks := self._soup.select('div.single-photo-nickname'):
+                self._author = (nicks[0].text or '').strip()
+        return self._author
+
+    @property
+    def media(self):
+        """
+        Gather post images and videos in one list
+        """
+        if self._media is None:
+            self._media = []
+            self._media.extend([Image(url=url) for url in self._get_image_urls()])
+            self._media.extend([Video(url=url) for url in self._get_video_urls()])
+        return self._media
+
+    def _find_img(self, soup):
+        return find_elem(soup, 'img')
+
+    def _find_vid(self, soup):
+        return find_elem(soup, 'video source')
+
+    def _get_image_urls(self):
+        img_urls = []
+
+        if carousel := find_elem(self._soup, 'div.owl-carousel'):
+            for item in carousel.select('div.item'):
+                if img := self._find_img(item):
+                    img_urls.append(img.attrs['src'])
+        else:
+            if single := find_elem(self._soup, 'div.single-photo'):
+                if not self._find_vid(single):
+                    img = self._find_img(single)
+                    img_urls.append(img.attrs['src'])
+
+        return img_urls
+
+    def _get_video_urls(self):
+        vid_urls = []
+
+        if carousel := find_elem(self._soup, 'div.owl-carousel'):
+            for item in carousel.select('div.item'):
+                if vid := self._find_vid(item):
+                    vid_urls.append(vid.attrs['src'])
+        else:
+            if single := find_elem(self._soup, 'div.single-photo'):
+                if vid := self._find_vid(single):
+                    vid_urls.append(vid.attrs['src'])
+
+        return vid_urls
+
+
+class GramhirSource(InstagramSource, SeleniumSource):
+    """
+    Instagram client that uses gramhir.com
+    """
+    def __init__(self, name, gramhir_id):
+        self.profile_url = f'https://gramhir.com/profile/{gramhir_id}'
+        self._create_browser()
+
+    def get_last_posts(self):
+        """
+        Get list of Post instances of posts
+        which appeared after the last check
+        """
+        soup = self.get_soup(self.profile_url)
+        urls = self._parse_post_urls(soup)
+
+        posts = []
+        for url in urls:
+            soup = self.get_soup(url)
+            post = GramhirPost(url=url, soup=soup)
+            posts.append(post)
+
+        return posts
+
+    def get_updates(self):
+        """
+        Get list of Update instances of update
+        which appeared after the last check
+        """
+        posts = self.get_last_posts()
+        # stories = self.get_last_stories()
+        return posts
+
+    def _parse_post_urls(self, soup):
+        """
+        Get post URLs from the provided profile soup
+        """
+        urls = []
+        for div in soup.select('div.photo'):
+            id_ = None
+            if as_ := div.select('a'):
+                if href := as_[0].attrs.get('href'):
+                    urls.append(href)
+        return urls
