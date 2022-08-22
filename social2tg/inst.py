@@ -21,6 +21,18 @@ class GramhirPost(Post):
     def __init__(self, url=None, soup=None):
         self._url = url
         self._soup = soup
+        self.orig_post_id = self._extract_orig_post_id()
+        self.orig_url = f'https://www.instagram.com/p/{self.orig_post_id}/'
+
+    def _extract_orig_post_id(self):
+        raw = str(self._soup)
+        idx1 = raw.find('let short_code = ')
+        cut1 = raw[idx1:]
+        idx2 = cut1.find('"')
+        cut2 = cut1[idx2+1:]
+        idx3 = cut2.find('"')
+        post_id = cut2[:idx3]
+        return post_id
 
     @property
     def text(self):
@@ -88,7 +100,10 @@ class GramhirSource(InstagramSource, SeleniumSource):
     Instagram client that uses gramhir.com
     """
     def __init__(self, name, gramhir_id):
-        self.profile_url = f'https://gramhir.com/profile/{gramhir_id}'
+        self._gramhir_id = gramhir_id
+        self.nickname = gramhir_id.split('/')[0]
+        self.url = f'https://gramhir.com/profile/{gramhir_id}'
+        self.orig_url = f'https://www.instagram.com/{self.nickname}/'
         self._create_browser()
 
     def get_last_posts(self):
@@ -96,7 +111,7 @@ class GramhirSource(InstagramSource, SeleniumSource):
         Get list of Post instances of posts
         which appeared after the last check
         """
-        soup = self.get_soup(self.profile_url)
+        soup = self.get_soup(self.url)
         urls = self._parse_post_urls(soup)
 
         posts = []

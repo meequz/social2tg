@@ -1,3 +1,5 @@
+import time
+
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
@@ -9,7 +11,9 @@ _browser = None
 
 
 class FirefoxBrowser(webdriver.Firefox):
-
+    """
+    Wrapper on Selenium driver
+    """
     def __init__(self):
         options = Options()
         options.headless = config.BROWSER_HEADLESS
@@ -33,7 +37,7 @@ class FirefoxBrowser(webdriver.Firefox):
 
 def get_browser():
     """
-    Get the browser, creating if necessarry
+    Return Selenium driver object, creating if necessarry
     """
     global _browser
     if _browser is None:

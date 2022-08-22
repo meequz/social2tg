@@ -19,6 +19,7 @@ class Update:
     _date = None
     _text = None
     _media = None
+    orig_url = None
 
     def _str(self):
         return f'Update(url={self._url})'
@@ -54,7 +55,7 @@ class Update:
         Convert to the form ready for publishing:
         prepare final text and a list of media
         """
-        text = f'{self.author}\n\n{self.text}'
+        text = f'{self.author}\n{self.orig_url}\n\n{self.text}'
         media = self.media or []
         return text, media
 
@@ -143,7 +144,9 @@ class Target:
 
 
 class Feed:
-
+    """
+    Feed is [sources] -> [targets] system
+    """
     def __init__(self, name, feed_params):
         """
         Initialize sources and targets of the feed

@@ -8,7 +8,7 @@ TG_SESSION_NAME = 'session_00'
 TARGETS = {
     # name: {
     #     'id': -1,
-    #     'class': 'social2tg.tg.ChannelTarget',
+    #     'class': 'social2tg.tg.PythonTelegramBotTarget',
     # },
 }
 

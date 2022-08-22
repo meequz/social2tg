@@ -12,8 +12,10 @@ from .utils import get_logger
 logger = get_logger()
 
 
-class BaseTarget(Target):
-
+class TelethonTarget(Target):
+    """
+    Uses Telethon lib and Telegram Core API
+    """
     def _tg_exec(self, action, *args):
         """
         Execute provided action with provided args
@@ -43,13 +45,15 @@ class BaseTarget(Target):
         return resp
 
 
-class ChannelTarget(BaseTarget):
+class PythonTelegramBotTarget(Target):
     """
-    Use this class if your target is a Telegram channel
+    Uses python-telegram-bot lib and Telegram Bot API
     """
+    def publish(self, update):
+        raise NotImplementedError
 
 
-class DummyChannelTarget(BaseTarget):
+class DummyTarget(Target):
     """
     Fake Telegram channel target, for testing
     """
