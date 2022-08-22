@@ -4,7 +4,6 @@ import datetime
 from telethon.errors.rpcerrorlist import FloodWaitError
 from telethon.sync import TelegramClient
 
-import config
 from .common import Target
 from .utils import get_logger
 
@@ -12,7 +11,7 @@ from .utils import get_logger
 logger = get_logger()
 
 
-class TelethonTarget(Target):
+class TelethonChatTarget(Target):
     """
     Uses Telethon lib and Telegram Core API
     """
@@ -20,9 +19,9 @@ class TelethonTarget(Target):
         """
         Execute provided action with provided args
         """
-        with TelegramClient(config.TG_SESSION_NAME,
-                            config.TG_API_ID,
-                            config.TG_API_HASH) as client:
+        with TelegramClient(self.params['session'],
+                            self.params['api_id'],
+                            self.params['api_hash']) as client:
             try:
                 action(client, *args)
             except FloodWaitError as exc:
@@ -36,7 +35,7 @@ class TelethonTarget(Target):
         Action for publishing a post
         """
         text, media = update.convert()
-        resp = client.send_message(self.id, text)
+        resp = client.send_message(self.params['chat_id'], text)
         return resp
 
     def publish(self, update):
@@ -45,12 +44,24 @@ class TelethonTarget(Target):
         return resp
 
 
-class PythonTelegramBotTarget(Target):
+class PtbTarget(Target):
     """
     Uses python-telegram-bot lib and Telegram Bot API
     """
-    def publish(self, update):
-        raise NotImplementedError
+
+
+class PtbChatTarget(Target):
+    """
+    Uses python-telegram-bot lib and Telegram Bot API,
+    send update in a chat (channel, group, or user)
+    """
+
+
+class PtbBotTarget(Target):
+    """
+    Uses python-telegram-bot lib and Telegram Bot API,
+    send update to all the bot subscribers
+    """
 
 
 class DummyTarget(Target):

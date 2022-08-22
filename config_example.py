@@ -1,14 +1,18 @@
 from datetime import timedelta
 
 
-TG_API_ID = 0
-TG_API_HASH = ''
-TG_SESSION_NAME = 'session_00'
-
 TARGETS = {
     # name: {
-    #     'id': -1,
-    #     'class': 'social2tg.tg.PythonTelegramBotTarget',
+    #     'chat_id': -1,
+    #     'class': 'social2tg.tg.PtbChatTarget',
+    #     'bot_token': '',
+    # },
+    # name: {
+    #     'chat_id': -2,
+    #     'class': 'social2tg.tg.TelethonChatTarget',
+    #     'api_id': 0,
+    #     'api_hash': '',
+    #     'session': '',
     # },
 }
 

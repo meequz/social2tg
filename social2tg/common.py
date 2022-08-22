@@ -132,9 +132,9 @@ class Target:
     """
     Base for any Target class
     """
-    def __init__(self, name, id_):
+    def __init__(self, name, params):
         self.name = name
-        self.id = id_
+        self.params = params
 
     def publish(self, update):
         raise NotImplementedError
@@ -164,7 +164,7 @@ class Feed:
         logger.info('Create targets: %s', feed_params['targets'])
         for name in feed_params['targets']:
             trg = config.TARGETS[name]
-            target = import_string(trg['class'])(name, trg['id'])
+            target = import_string(trg['class'])(name, trg)
             self.targets.append(target)
 
     def gather(self):
