@@ -1,6 +1,8 @@
 import time
 from importlib import import_module
 
+from telegram import InputMediaPhoto, InputMediaVideo
+
 import config
 from .browser import destroy_browser, get_browser
 from .utils import get_logger, import_string
@@ -20,9 +22,10 @@ class Update:
     _text = None
     _media = None
     orig_url = None
+    update_type = None
 
     def _str(self):
-        return f'Update(url={self._url})'
+        return f"Update(url='{self._url}')"
 
     def __str__(self):
         return self._str()
@@ -50,12 +53,13 @@ class Update:
     def media(self):
         return self._media
 
-    def convert(self):
+    def convert_to_internal(self):
         """
         Convert to the form ready for publishing:
         prepare final text and a list of media
         """
-        text = f'{self.author}\n{self.orig_url}\n\n{self.text}'
+        update_type = self.update_type.title()
+        text = f'Author: {self.orig_url}\n{update_type}: {self.orig_url}\n\n{self.text}'
         media = self.media or []
         return text, media
 
@@ -64,9 +68,10 @@ class Post(Update):
     """
     Base class of a Post, in any social source
     """
+    update_type = 'post'
 
     def _str(self):
-        return f'Post(url={self._url})'
+        return f"Post(url='{self._url}')"
 
 
 class Media:
@@ -79,7 +84,7 @@ class Media:
         self.path = path
 
     def _str(self):
-        return f'Media(url={self.url})'
+        return f"Media(url='{self.url}')"
 
     def __str__(self):
         return self._str()
@@ -93,7 +98,13 @@ class Image(Media):
     Base class of an Image, in any social source
     """
     def _str(self):
-        return f'Image(url={self.url})'
+        return f"Image(url='{self.url}')"
+
+    def convert_to_ptb(self, caption=''):
+        """
+        Convert to python-telegram-bot object
+        """
+        return InputMediaPhoto(self.url, caption=caption)
 
 
 class Video(Media):
@@ -101,7 +112,13 @@ class Video(Media):
     Base class of a Video, in any social source
     """
     def _str(self):
-        return f'Video(url={self.url})'
+        return f"Video(url='{self.url}')"
+
+    def convert_to_ptb(self, caption=''):
+        """
+        Convert to python-telegram-bot object
+        """
+        return InputMediaVideo(self.url, caption=caption)
 
 
 class Source:
@@ -119,12 +136,12 @@ class SeleniumSource(Source):
     def _create_browser(self):
         self._browser = get_browser()
 
-    def get_soup(self, url):
+    def get_soup(self, url, wait=2):
         """
-        Load URL and returned souped DOM
+        Load URL, wait a bit for JS to load, and return the souped DOM
         """
         self._browser.get(url)
-        time.sleep(1)
+        time.sleep(wait)
         return self._browser.get_soup()
 
 
