@@ -57,13 +57,20 @@ class Update:
     def media(self):
         return self._media
 
+    @property
+    def footer(self):
+        footer = (
+            f'\n\n<i><a href="{self.orig_url}">{self.update_type.title()}</a> '
+            f'by <code>{self.author}</code></i>'
+        )
+        return footer
+
     def convert_to_internal(self):
         """
         Convert to the form ready for publishing:
         prepare final text and a list of media
         """
-        update_type = self.update_type.title()
-        text = f'{self.text}\n\n<i>{update_type}: {self.orig_url} by {self.author}</i>'
+        text = f'{self.text.strip()}{self.footer}'
         media = self.media or []
         return text, media
 

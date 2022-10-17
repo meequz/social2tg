@@ -33,7 +33,7 @@ class MemoryStorage(Storage):
         entry = {
             'update_id': update.identifier,
             'feed': feed.name,
-            'at': time.time(),
+            'at': int(time.time()),
         }
         self.mem['published'].append(entry)
 
@@ -57,7 +57,7 @@ class SqliteStorage(Storage):
 
     def remember_published(self, update, feed):
         sql = 'INSERT INTO published (update_id, feed, at) VALUES (?, ?, ?)'
-        params = (update.identifier, feed.name, time.time())
+        params = (update.identifier, feed.name, int(time.time()))
         with get_sqlite_cursor(self.path) as cursor:
             cursor.execute(sql, params)
 
