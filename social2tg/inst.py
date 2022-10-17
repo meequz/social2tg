@@ -24,6 +24,10 @@ class GramhirPost(Post):
         self.orig_post_id = self._extract_orig_post_id()
         self.orig_url = f'https://www.instagram.com/p/{self.orig_post_id}/'
 
+    @property
+    def identifier(self):
+        return self.orig_post_id
+
     def _extract_orig_post_id(self):
         raw = str(self._soup)
         idx1 = raw.find('let short_code = ')

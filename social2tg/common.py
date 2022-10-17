@@ -38,6 +38,10 @@ class Update:
         return self._url
 
     @property
+    def identifier(self):
+        return self._url
+
+    @property
     def author(self):
         return self._author
 
@@ -59,7 +63,7 @@ class Update:
         prepare final text and a list of media
         """
         update_type = self.update_type.title()
-        text = f'Author: {self.orig_url}\n{update_type}: {self.orig_url}\n\n{self.text}'
+        text = f'{self.text}\n\n<i>{update_type}: {self.orig_url} by {self.author}</i>'
         media = self.media or []
         return text, media
 
@@ -104,7 +108,7 @@ class Image(Media):
         """
         Convert to python-telegram-bot object
         """
-        return InputMediaPhoto(self.url, caption=caption)
+        return InputMediaPhoto(self.url, caption=caption, parse_mode='html')
 
 
 class Video(Media):
@@ -118,7 +122,7 @@ class Video(Media):
         """
         Convert to python-telegram-bot object
         """
-        return InputMediaVideo(self.url, caption=caption)
+        return InputMediaVideo(self.url, caption=caption, parse_mode='html')
 
 
 class Source:
@@ -164,25 +168,34 @@ class Feed:
     """
     Feed is [sources] -> [targets] system
     """
-    def __init__(self, name, feed_params):
+    _storage = None
+
+    def __init__(self, name, params):
         """
         Initialize sources and targets of the feed
         """
         self.name = name
+        self.params = params
 
         self.sources = []
-        logger.info('Create sources: %s', feed_params['sources'])
-        for name in feed_params['sources']:
+        logger.info('Create sources: %s', params['sources'])
+        for name in params['sources']:
             src = config.SOURCES[name]
             source = import_string(src['class'])(name, src['id'])
             self.sources.append(source)
 
         self.targets = []
-        logger.info('Create targets: %s', feed_params['targets'])
-        for name in feed_params['targets']:
+        logger.info('Create targets: %s', params['targets'])
+        for name in params['targets']:
             trg = config.TARGETS[name]
             target = import_string(trg['class'])(name, trg)
             self.targets.append(target)
+
+    @property
+    def storage(self):
+        if self._storage is None:
+            self._storage = import_string(self.params['storage']['class'])(self.params['storage'])
+        return self._storage
 
     def gather(self):
         """
@@ -199,7 +212,10 @@ class Feed:
         """
         for target in self.targets:
             for update in updates:
+                if self.storage.find_published(update, self):
+                   continue
                 target.publish(update)
+                self.storage.remember_published(update, self)
                 time.sleep(1)
 
 
