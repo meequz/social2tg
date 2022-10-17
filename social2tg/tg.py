@@ -2,6 +2,7 @@ import time
 import datetime
 
 import telegram
+from telegram.error import RetryAfter
 from telethon.errors.rpcerrorlist import FloodWaitError
 from telethon.sync import TelegramClient
 
@@ -60,6 +61,27 @@ class PtbChatTarget(Target):
         super().__init__(name, params)
         self.bot = telegram.Bot(token=params['bot_token'])
 
+    def _tg_exec(self, action, *args):
+        """
+        Execute provided action
+        """
+        try:
+            resp = action(*args)
+            time.sleep(2)
+        except RetryAfter as exc:
+            logger.info('Flood limit detected, waiting for %s seconds', exc.retry_after)
+            time.sleep(exc.retry_after + 1)
+            resp = action(*args)
+
+        return resp
+
+    def _publish(self, ptb_media):
+        """
+        Action for publishing a post
+        """
+        resp = self.bot.send_media_group(self.params['chat_id'], ptb_media)
+        return resp
+
     def publish(self, update):
         logger.info('Publish %s in %s', update, self.name)
 
@@ -68,7 +90,7 @@ class PtbChatTarget(Target):
         ptb_md_0 = md_0.convert_to_ptb(caption=text)
         ptb_media = [ptb_md_0] + [md.convert_to_ptb() for md in media]
 
-        resp = self.bot.send_media_group(self.params['chat_id'], ptb_media)
+        resp = self._tg_exec(self._publish, ptb_media)
         return resp
 
 
