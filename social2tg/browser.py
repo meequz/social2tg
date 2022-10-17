@@ -9,9 +9,11 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 
 import config
+from .utils import get_logger
 
 
 _browser = None
+logger = get_logger()
 
 
 class FirefoxBrowser(webdriver.Firefox):
@@ -32,6 +34,11 @@ class FirefoxBrowser(webdriver.Firefox):
 
     def __del__(self):
         self.quit()
+
+    def get(self, url):
+        logger.info('Open in browser: %s', url)
+        result = super().get(url)
+        return result
 
     def get_soup(self):
         """
