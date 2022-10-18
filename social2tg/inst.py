@@ -16,8 +16,7 @@ class InstagramSource(Source):
 
 class InstagramPost(Post):
 
-    @property
-    def footer(self):
+    def construct_footer(self):
         footer = (
             f'\n\n<i><a href="{self.orig_url}">{self.update_type.title()}</a> by '
             f'<a href="https://www.instagram.com/{self.author[1:]}">{self.author}</a></i>'

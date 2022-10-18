@@ -4,9 +4,11 @@ Feeds from various social networks to Telegram. Currently only Instagram (posts)
 
 
 TODO:
+- replace convert_to_ptb() with tg-specific classes. Also ptb_media in tg.PtbChatTarget.publish is what should be returned from to_target()
 - posting video
 - replace usernames with links
 - wrap hashtags with <code> tag
+- do not even open in the browser what was published
 - hiding source mode:
     - replace usernames with mono text without @
     - cut off hashtags
@@ -15,4 +17,4 @@ TODO:
     - by time
     - by manual approval
     - ability to edit caption
-- do not even open in the browser what was published
+- facebook as a source

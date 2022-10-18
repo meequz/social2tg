@@ -61,8 +61,7 @@ class Update:
     def media(self):
         return self._media
 
-    @property
-    def footer(self):
+    def construct_footer(self):
         update_type = self.update_type.title()
 
         if self.orig_url:
@@ -73,14 +72,15 @@ class Update:
         footer = f'\n\n<i>{start} by <code>{self.author}</code></i>'
         return footer
 
-    def convert_to_internal(self):
+    def to_internal(self):
         """
         Convert to the form ready for publishing:
         prepare final text and a list of media
         """
-        text = f'{self.text.strip()}{self.footer}'
+        text = self.text.strip()
+        footer = self.construct_footer()
         media = self.media or []
-        return text, media
+        return text, footer, media
 
 
 class Post(Update):
@@ -200,6 +200,19 @@ class Target:
 
     def schedule(self, update, date):
         raise NotImplementedError
+
+
+class DummyTarget(Target):
+    """
+    Fake Telegram channel target, for testing
+    """
+    def publish(self, update):
+        text, footer, media = update.to_internal()
+        print(f'{update} published in {self.name}:')
+        print(f'{text=}')
+        print(f'{footer=}')
+        print(f'{media=}')
+        print()
 
 
 class Feed:

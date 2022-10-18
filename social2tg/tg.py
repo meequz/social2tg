@@ -13,7 +13,23 @@ from .utils import get_logger
 logger = get_logger()
 
 
-class TelethonChatTarget(Target):
+class TelegramTarget(Target):
+    """
+    Base for any Telegram target
+    """
+    caption_limit = 1024
+    text_limit = 4096
+
+    def to_target(self, text, footer, media):
+        ending = '...'
+        limit = self.caption_limit if media else self.text_limit
+        cut = limit - (len(ending) + len(footer))
+        if cut < len(text):
+            text = text[:cut] + ending
+        return text, footer, media
+
+
+class TelethonChatTarget(TelegramTarget):
     """
     Uses Telethon lib and Telegram Core API
     """
@@ -36,8 +52,9 @@ class TelethonChatTarget(Target):
         """
         Action for publishing a post
         """
-        text, media = update.convert_to_internal()
-        resp = client.send_message(self.params['chat_id'], text)
+        text, footer, media = update.to_internal()
+        text, footer, media = self.to_target(text, footer, media)
+        resp = client.send_message(self.params['chat_id'], text + footer)
         return resp
 
     def publish(self, update):
@@ -46,13 +63,13 @@ class TelethonChatTarget(Target):
         return resp
 
 
-class PtbTarget(Target):
+class PtbTarget(TelegramTarget):
     """
     Uses python-telegram-bot lib and Telegram Bot API
     """
 
 
-class PtbChatTarget(Target):
+class PtbChatTarget(PtbTarget):
     """
     Uses python-telegram-bot lib and Telegram Bot API,
     send update in a chat (channel, group, or user)
@@ -89,7 +106,10 @@ class PtbChatTarget(Target):
     def publish(self, update):
         logger.info('Publish %s in %s', update, self.name)
 
-        text, media = update.convert_to_internal()
+        text, footer, media = update.to_internal()
+        text, footer, media = self.to_target(text, footer, media)
+        text = text + footer
+
         ptb_media = []
         if media:
             md_0 = media.pop(0)
@@ -100,20 +120,8 @@ class PtbChatTarget(Target):
         return resp
 
 
-class PtbBotTarget(Target):
+class PtbBotTarget(PtbTarget):
     """
     Uses python-telegram-bot lib and Telegram Bot API,
     send update to all the bot subscribers
     """
-
-
-class DummyTarget(Target):
-    """
-    Fake Telegram channel target, for testing
-    """
-    def publish(self, update):
-        text, media = update.convert_to_internal()
-        print(f'{update} published in {self.name}:')
-        print(f'{text=}')
-        print(f'{media=}')
-        print()
