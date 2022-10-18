@@ -160,4 +160,4 @@ class GramhirSource(InstagramSource, SeleniumSource):
             if as_ := div.select('a'):
                 if href := as_[0].attrs.get('href'):
                     urls.append(href)
-        return urls
+        return urls[::-1]
