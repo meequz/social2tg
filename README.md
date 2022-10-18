@@ -6,6 +6,7 @@ Feeds from various social networks to Telegram. Currently only Instagram (posts)
 TODO:
 - posting video
 - replace usernames with links
+- wrap hashtags with <code> tag
 - hiding source mode:
     - replace usernames with mono text without @
     - cut off hashtags

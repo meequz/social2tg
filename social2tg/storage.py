@@ -55,6 +55,9 @@ class SqliteStorage(Storage):
         with get_sqlite_cursor(self.path) as cursor:
             cursor.execute(sql, params)
 
+    def __str__(self):
+        return f'SqliteStorage({self.path})'
+
     def remember_published(self, update, feed):
         sql = 'INSERT INTO published (update_id, feed, at) VALUES (?, ?, ?)'
         params = (update.identifier, feed.name, int(time.time()))

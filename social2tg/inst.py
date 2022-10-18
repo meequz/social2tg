@@ -29,9 +29,10 @@ class GramhirPost(InstagramPost):
     """
     Post handler for Gramhir source
     """
-    def __init__(self, url=None, soup=None):
-        self._url = url
-        self._soup = soup
+    def __init__(self, params):
+        super().__init__(params)
+        self._url = params['url']
+        self._soup = params['soup']
         self.orig_post_id = self._extract_orig_post_id()
         self.orig_url = f'https://www.instagram.com/p/{self.orig_post_id}/'
 
@@ -114,10 +115,11 @@ class GramhirSource(InstagramSource, SeleniumSource):
     """
     Instagram client that uses gramhir.com
     """
-    def __init__(self, name, gramhir_id):
-        self._gramhir_id = gramhir_id
-        self.nickname = gramhir_id.split('/')[0]
-        self.url = f'https://gramhir.com/profile/{gramhir_id}'
+    def __init__(self, name, params):
+        super().__init__(name, params)
+        self._gramhir_id = params['id']
+        self.nickname = self._gramhir_id.split('/')[0]
+        self.url = f'https://gramhir.com/profile/{self._gramhir_id}'
         self.orig_url = f'https://www.instagram.com/{self.nickname}/'
         self._create_browser()
 
@@ -131,8 +133,11 @@ class GramhirSource(InstagramSource, SeleniumSource):
 
         posts = []
         for url in urls:
-            soup = self.get_soup(url)
-            post = GramhirPost(url=url, soup=soup)
+            params = {
+                'url': url,
+                'soup': self.get_soup(url),
+            }
+            post = GramhirPost(params)
             posts.append(post)
 
         return posts

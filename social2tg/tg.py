@@ -69,28 +69,34 @@ class PtbChatTarget(Target):
             resp = action(*args)
             time.sleep(2)
         except RetryAfter as exc:
-            logger.info('Flood limit detected, waiting for %s seconds', exc.retry_after)
-            time.sleep(exc.retry_after + 1)
+            wait = int(exc.retry_after)
+            logger.info('Flood limit detected, waiting for %s seconds', wait)
+            time.sleep(wait + 1)
             resp = action(*args)
 
         return resp
 
-    def _publish(self, ptb_media):
+    def _publish(self, text, ptb_media):
         """
         Action for publishing a post
         """
-        resp = self.bot.send_media_group(self.params['chat_id'], ptb_media)
+        if ptb_media:
+            resp = self.bot.send_media_group(self.params['chat_id'], ptb_media)
+        elif text:
+            resp = self.bot.send_message(self.params['chat_id'], text, parse_mode='html')
         return resp
 
     def publish(self, update):
         logger.info('Publish %s in %s', update, self.name)
 
         text, media = update.convert_to_internal()
-        md_0 = media.pop(0)
-        ptb_md_0 = md_0.convert_to_ptb(caption=text)
-        ptb_media = [ptb_md_0] + [md.convert_to_ptb() for md in media]
+        ptb_media = []
+        if media:
+            md_0 = media.pop(0)
+            ptb_md_0 = md_0.convert_to_ptb(caption=text)
+            ptb_media = [ptb_md_0] + [md.convert_to_ptb() for md in media]
 
-        resp = self._tg_exec(self._publish, ptb_media)
+        resp = self._tg_exec(self._publish, text, ptb_media)
         return resp
 
 

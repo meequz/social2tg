@@ -1,3 +1,4 @@
+import random
 import time
 from importlib import import_module
 
@@ -23,6 +24,9 @@ class Update:
     _media = None
     orig_url = None
     update_type = None
+
+    def __init__(self, params):
+        self.params = params
 
     def _str(self):
         return f"Update(url='{self._url}')"
@@ -59,10 +63,14 @@ class Update:
 
     @property
     def footer(self):
-        footer = (
-            f'\n\n<i><a href="{self.orig_url}">{self.update_type.title()}</a> '
-            f'by <code>{self.author}</code></i>'
-        )
+        update_type = self.update_type.title()
+
+        if self.orig_url:
+            start = f'<a href="{self.orig_url}">{update_type}</a>'
+        else:
+            start = update_type
+
+        footer = f'\n\n<i>{start} by <code>{self.author}</code></i>'
         return footer
 
     def convert_to_internal(self):
@@ -136,6 +144,10 @@ class Source:
     """
     Base for any Source class
     """
+    def __init__(self, name, params):
+        self.name = name
+        self.params = params
+
     def get_updates(self):
         raise NotImplementedError
 
@@ -156,6 +168,22 @@ class SeleniumSource(Source):
         return self._browser.get_soup()
 
 
+class DummyPost(Post):
+    """
+    Fake Post for testing
+    """
+    _text = f'Lorem ipsum {random.randint(1, 99999999999)}'
+
+
+class DummySource(Source):
+    """
+    Fake Source for testing
+    """
+    def get_updates(self):
+        posts = [DummyPost({'id': '1'})]
+        return posts
+
+
 class Target:
     """
     Base for any Target class
@@ -163,6 +191,9 @@ class Target:
     def __init__(self, name, params):
         self.name = name
         self.params = params
+
+    def _str(self):
+        return f"Target(name='{self.name}')"
 
     def publish(self, update):
         raise NotImplementedError
@@ -188,7 +219,7 @@ class Feed:
         logger.info('Create sources: %s', params['sources'])
         for name in params['sources']:
             src = config.SOURCES[name]
-            source = import_string(src['class'])(name, src['id'])
+            source = import_string(src['class'])(name, src)
             self.sources.append(source)
 
         self.targets = []
@@ -197,6 +228,15 @@ class Feed:
             trg = config.TARGETS[name]
             target = import_string(trg['class'])(name, trg)
             self.targets.append(target)
+
+    def _str(self):
+        return f"Feed(name='{self.name}')"
+
+    def __str__(self):
+        return self._str()
+
+    def __repr__(self):
+        return self._str()
 
     @property
     def storage(self):
@@ -219,10 +259,16 @@ class Feed:
         """
         for target in self.targets:
             for update in updates:
+
                 if self.storage.find_published(update, self):
-                   continue
+                    logger.info('%s for %s already published', update, self)
+                    continue
+
                 target.publish(update)
+
+                logger.info('Remember that %s has been published in %s', update, self)
                 self.storage.remember_published(update, self)
+
                 time.sleep(1)
 
 
