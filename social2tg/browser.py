@@ -26,8 +26,15 @@ class FirefoxBrowser(webdriver.Firefox):
 
         options.set_preference('permissions.default.image', 2)
         options.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', False)
-        options.set_preference('network.dns.blockDotOnion', False)
         options.set_preference('places.history.enabled', False)
+
+        if config.BROWSER_TOR:
+            options.set_preference("network.dns.blockDotOnion", False)
+            options.set_preference("network.proxy.type", 1)
+            options.set_preference("network.proxy.socks_version", 5)
+            options.set_preference("network.proxy.socks", "127.0.0.1")
+            options.set_preference("network.proxy.socks_port", 9050)
+            options.set_preference("network.proxy.socks_remote_dns", True)
 
         service = FirefoxService(GeckoDriverManager().install())
         super().__init__(options=options, service=service)
