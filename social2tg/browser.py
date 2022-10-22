@@ -1,6 +1,5 @@
 import time
 
-from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
@@ -28,7 +27,7 @@ class FirefoxBrowser(webdriver.Firefox):
         options.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', False)
         options.set_preference('places.history.enabled', False)
 
-        if config.BROWSER_TOR:
+        if config.TOR_PROXY:
             options.set_preference("network.dns.blockDotOnion", False)
             options.set_preference("network.proxy.type", 1)
             options.set_preference("network.proxy.socks_version", 5)
@@ -46,12 +45,6 @@ class FirefoxBrowser(webdriver.Firefox):
         logger.info('Open in browser: %s', url)
         result = super().get(url)
         return result
-
-    def get_soup(self):
-        """
-        Using Beautiful Soup for parsing is easier than Selenium.
-        """
-        return BeautifulSoup(self.page_source, "html.parser")
 
     def css_select(self, selector):
         try:

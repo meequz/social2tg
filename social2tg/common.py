@@ -2,6 +2,8 @@ import random
 import time
 from importlib import import_module
 
+import requests
+from bs4 import BeautifulSoup
 from telegram import InputMediaPhoto, InputMediaVideo
 
 import config
@@ -154,18 +156,37 @@ class Source:
 
 class SeleniumSource(Source):
     """
-    Mixin for any class working with Selenium
+    Mixin for any Source working with Selenium
     """
-    def _create_browser(self):
+    def init_session(self):
         self._browser = get_browser()
 
-    def get_soup(self, url, wait=2):
+    def get_soup(self, url):
         """
         Load URL, wait a bit for JS to load, and return the souped DOM
         """
         self._browser.get(url)
-        time.sleep(wait)
-        return self._browser.get_soup()
+        time.sleep(config.WAIT_BETWEEN)
+        return BeautifulSoup(self._browser.page_source, 'html.parser')
+
+
+class RequestsSource(Source):
+    """
+    Mixin for any Source working with Requests
+    """
+    def init_session(self):
+        self._session = requests.session()
+        if config.TOR_PROXY:
+            self._session.proxies['http'] = 'socks5h://localhost:9050'
+            self._session.proxies['https'] = 'socks5h://localhost:9050'
+
+    def get_soup(self, url):
+        """
+        Load URL and return the souped DOM
+        """
+        response = self._session.get(url)
+        time.sleep(config.WAIT_BETWEEN)
+        return BeautifulSoup(response.text, 'html.parser')
 
 
 class DummyPost(Post):
@@ -281,8 +302,6 @@ class Feed:
 
                 logger.info('Remember that %s has been published in %s', update, self)
                 self.storage.remember_published(update, self)
-
-                time.sleep(1)
 
 
 def cleanup():

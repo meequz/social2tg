@@ -133,3 +133,4 @@ dmypy.json
 config.py
 log.txt
 *.session
+trash

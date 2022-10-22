@@ -21,7 +21,7 @@ TARGETS = {
 
 SOURCES = {
     # name: {
-    #     'class': 'social2tg.inst.GramhirSource',
+    #     'class': 'social2tg.inst.GramhirSeleniumSource',
     #     'id': nickname,
     # }
 }

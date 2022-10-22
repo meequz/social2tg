@@ -1,4 +1,6 @@
-from .common import Image, Post, SeleniumSource, Source, Video
+import time
+
+from .common import Image, Post, RequestsSource, SeleniumSource, Source, Video
 from .utils import find_elem
 
 
@@ -110,7 +112,7 @@ class GramhirPost(InstagramPost):
         return vid_urls
 
 
-class GramhirSource(InstagramSource, SeleniumSource):
+class GramhirSource(InstagramSource):
     """
     Instagram client that uses gramhir.com
     """
@@ -120,7 +122,7 @@ class GramhirSource(InstagramSource, SeleniumSource):
         self.nickname = self._gramhir_id.split('/')[0]
         self.url = f'https://gramhir.com/profile/{self._gramhir_id}'
         self.orig_url = f'https://www.instagram.com/{self.nickname}/'
-        self._create_browser()
+        self.init_session()
 
     def get_last_posts(self):
         """
@@ -138,6 +140,7 @@ class GramhirSource(InstagramSource, SeleniumSource):
             }
             post = GramhirPost(params)
             posts.append(post)
+            time.sleep(2)
 
         return posts
 
@@ -161,3 +164,11 @@ class GramhirSource(InstagramSource, SeleniumSource):
                 if href := as_[0].attrs.get('href'):
                     urls.append(href)
         return urls[::-1]
+
+
+class GramhirSeleniumSource(GramhirSource, SeleniumSource):
+    pass
+
+
+class GramhirRequestsSource(GramhirSource, RequestsSource):
+    pass
