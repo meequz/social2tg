@@ -5,6 +5,24 @@ Feeds from various social networks to Telegram. Currently only Instagram (posts)
 
 TODO:
 - rotate gramhir-like providers
+    - https://www.picuki.com
+    - https://greatfon.com/
+    - https://dumpor.com (not so simiar)
+    - https://apkun.com
+    - https://www.pixwox.com
+    - https://imginn.com
+    - https://storiesig.net
+    - https://storiesig.app/
+    - https://storiesig.me/
+    - https://storistalker.com/ (not similar)
+    - https://instanavigation.com/
+    - https://inflact.com/
+    - https://instastories.watch
+    - https://iganony.com
+    - https://privatephotoviewer.com
+    - https://insta-stories-viewer.com/
+    - https://www.exploreig.com/
+    - https://imginn.org/
 - https://github.com/venomous/cloudscraper backend
 - PhantomJS backend
 - Chrome driver backend

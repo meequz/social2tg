@@ -1,6 +1,7 @@
 bs4
 python-telegram-bot
 requests
+requests[socks]
 selenium
 telethon
 webdriver-manager

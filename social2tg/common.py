@@ -8,6 +8,7 @@ from telegram import InputMediaPhoto, InputMediaVideo
 
 import config
 from .browser import destroy_browser, get_browser
+from .constants import HEADERS_LIKE_BROWSER
 from .utils import get_logger, import_string
 
 
@@ -31,7 +32,7 @@ class Update:
         self.params = params
 
     def _str(self):
-        return f"Update(url='{self._url}')"
+        return f"Update('{self._url}')"
 
     def __str__(self):
         return self._str()
@@ -92,7 +93,7 @@ class Post(Update):
     update_type = 'post'
 
     def _str(self):
-        return f"Post(url='{self._url}')"
+        return f"Post('{self._url}')"
 
 
 class Media:
@@ -105,7 +106,7 @@ class Media:
         self.path = path
 
     def _str(self):
-        return f"Media(url='{self.url}')"
+        return f"Media('{self.url}')"
 
     def __str__(self):
         return self._str()
@@ -119,7 +120,7 @@ class Image(Media):
     Base class of an Image, in any social source
     """
     def _str(self):
-        return f"Image(url='{self.url}')"
+        return f"Image('{self.url}')"
 
     def convert_to_ptb(self, caption=''):
         """
@@ -133,7 +134,7 @@ class Video(Media):
     Base class of a Video, in any social source
     """
     def _str(self):
-        return f"Video(url='{self.url}')"
+        return f"Video('{self.url}')"
 
     def convert_to_ptb(self, caption=''):
         """
@@ -165,6 +166,7 @@ class SeleniumSource(Source):
         """
         Load URL, wait a bit for JS to load, and return the souped DOM
         """
+        logger.info('browser.get: %s', url)
         self._browser.get(url)
         time.sleep(config.WAIT_BETWEEN)
         return BeautifulSoup(self._browser.page_source, 'html.parser')
@@ -184,7 +186,10 @@ class RequestsSource(Source):
         """
         Load URL and return the souped DOM
         """
-        response = self._session.get(url)
+        logger.info('requests.get: %s', url)
+        response = self._session.get(url, headers=HEADERS_LIKE_BROWSER)
+        if response.status_code > 399:
+            logger.info('Got %s status code', response.status_code)
         time.sleep(config.WAIT_BETWEEN)
         return BeautifulSoup(response.text, 'html.parser')
 
@@ -214,7 +219,7 @@ class Target:
         self.params = params
 
     def _str(self):
-        return f"Target(name='{self.name}')"
+        return f"Target('{self.name}')"
 
     def publish(self, update):
         raise NotImplementedError
@@ -264,7 +269,7 @@ class Feed:
             self.targets.append(target)
 
     def _str(self):
-        return f"Feed(name='{self.name}')"
+        return f"Feed('{self.name}')"
 
     def __str__(self):
         return self._str()
@@ -300,7 +305,7 @@ class Feed:
 
                 target.publish(update)
 
-                logger.info('Remember that %s has been published in %s', update, self)
+                logger.info('Remember: %s published in %s', update, self)
                 self.storage.remember_published(update, self)
 
 

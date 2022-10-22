@@ -1,7 +1,10 @@
 import time
 
 from .common import Image, Post, RequestsSource, SeleniumSource, Source, Video
-from .utils import find_elem
+from .utils import find_elem, get_logger
+
+
+logger = get_logger()
 
 
 class InstagramSource(Source):
@@ -131,14 +134,12 @@ class GramhirSource(InstagramSource):
         """
         soup = self.get_soup(self.url)
         urls = self._parse_post_urls(soup)
+        if not urls:
+            logger.info('Something went wrong, no last posts found on the page')
 
         posts = []
         for url in urls:
-            params = {
-                'url': url,
-                'soup': self.get_soup(url),
-            }
-            post = GramhirPost(params)
+            post = GramhirPost({'url': url, 'soup': self.get_soup(url)})
             posts.append(post)
             time.sleep(2)
 

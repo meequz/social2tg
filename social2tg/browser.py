@@ -41,11 +41,6 @@ class FirefoxBrowser(webdriver.Firefox):
     def __del__(self):
         self.quit()
 
-    def get(self, url):
-        logger.info('Open in browser: %s', url)
-        result = super().get(url)
-        return result
-
     def css_select(self, selector):
         try:
             return self.find_element(By.CSS_SELECTOR, selector)
