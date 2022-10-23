@@ -253,16 +253,15 @@ class Feed:
         """
         self.name = name
         self.params = params
+        logger.info('Processing %s: %s > %s', self, params['sources'], params['targets'])
 
         self.sources = []
-        logger.info('Create sources: %s', params['sources'])
         for name in params['sources']:
             src = config.SOURCES[name]
             source = import_string(src['class'])(name, src)
             self.sources.append(source)
 
         self.targets = []
-        logger.info('Create targets: %s', params['targets'])
         for name in params['targets']:
             trg = config.TARGETS[name]
             target = import_string(trg['class'])(name, trg)

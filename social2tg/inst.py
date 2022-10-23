@@ -84,7 +84,7 @@ class GramhirPost(InstagramPost):
         return find_elem(soup, 'img')
 
     def _find_vid(self, soup):
-        return find_elem(soup, 'video source')
+        return find_elem(soup, 'video')
 
     def _get_image_urls(self):
         img_urls = []
@@ -107,11 +107,13 @@ class GramhirPost(InstagramPost):
         if carousel := find_elem(self._soup, 'div.owl-carousel'):
             for item in carousel.select('div.item'):
                 if vid := self._find_vid(item):
-                    vid_urls.append(vid.attrs['src'])
+                    if url := vid.attrs.get('src'):
+                        vid_urls.append(url)
         else:
             if single := find_elem(self._soup, 'div.single-photo'):
                 if vid := self._find_vid(single):
-                    vid_urls.append(vid.attrs['src'])
+                    if url := vid.attrs.get('src'):
+                        vid_urls.append(url)
 
         return vid_urls
 
