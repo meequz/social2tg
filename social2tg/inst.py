@@ -1,3 +1,4 @@
+import random
 import time
 
 from .common import Image, Post, RequestsSource, SeleniumSource, Source, Video
@@ -122,10 +123,16 @@ class GramhirSource(InstagramSource):
     def __init__(self, name, params):
         super().__init__(name, params)
         self._gramhir_id = params['id']
+
         self.nickname = self._gramhir_id.split('/')[0]
-        self.url = f'https://gramhir.com/profile/{self._gramhir_id}'
+        self.url = self._construct_url(params)
         self.orig_url = f'https://www.instagram.com/{self.nickname}/'
         self.init_session()
+
+    def _construct_url(self, params):
+        host = params.get('host') or random.choice(['gramhir.com', 'picuki.com'])
+        url = f'https://{host}/profile/{params["id"]}'
+        return url
 
     def get_last_posts(self):
         """

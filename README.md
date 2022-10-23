@@ -4,12 +4,12 @@ Feeds from various social networks to Telegram. Currently only Instagram (posts)
 
 
 TODO:
-- rotate gramhir-like providers
+- implement other Instagram providers
     - https://www.picuki.com
+    - https://www.pixwox.com
     - https://greatfon.com/
     - https://dumpor.com (not so simiar)
     - https://apkun.com
-    - https://www.pixwox.com
     - https://imginn.com
     - https://storiesig.net
     - https://storiesig.app/
