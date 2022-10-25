@@ -177,7 +177,13 @@ class GramhirSource(InstagramSource):
 
 
 class GramhirSeleniumSource(GramhirSource, SeleniumSource):
-    pass
+
+    def get_last_posts(self):
+        self._browser.scroll_up_down()
+        self._browser.scroll_up_down()
+        self._browser.scroll_up_down()
+        last_posts = super().get_last_posts()
+        return last_posts
 
 
 class GramhirRequestsSource(GramhirSource, RequestsSource):
