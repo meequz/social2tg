@@ -159,6 +159,8 @@ class SeleniumSource(Source):
     """
     Mixin for any Source working with Selenium
     """
+    RETRIES = 20
+
     def init_session(self):
         self._browser = get_browser()
 
@@ -167,8 +169,22 @@ class SeleniumSource(Source):
         Load URL, and wait a bit for JS to load
         """
         logger.info('browser.get: %s', url)
-        self._browser.get(url)
-        time.sleep(config.WAIT_BETWEEN)
+
+        ok = False
+        retry = 0
+        while retry < self.RETRIES:
+            try:
+                self._browser.get(url)
+                ok = True
+                break
+            except Exception as exc:
+                retry += 1
+                time.sleep(retry)
+
+        if ok:
+            time.sleep(config.WAIT_BETWEEN)
+        else:
+            raise RuntimeError('Enough retries! Give it a rest')
 
     def get_soup(self):
         """

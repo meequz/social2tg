@@ -92,7 +92,7 @@ class PtbChatTarget(PtbTarget):
             time.sleep(wait + 1)
             resp = action(*args)
         except telegram.error.BadRequest as exc:
-            logger.error("Fail executin TG action %s with args %s: %s", action, args, exc)
+            logger.error("Fail executing TG action %s: %s", action, exc)
 
         return resp
 
