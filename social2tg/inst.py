@@ -60,14 +60,14 @@ class GramhirPost(InstagramPost):
         if self._text is None:
             if descrs := self._soup.select('div.single-photo-description'):
                 self._text = (descrs[0].text or '').strip()
-        return self._text
+        return self._text or ''
 
     @property
     def author(self):
         if self._author is None:
             if nicks := self._soup.select('div.single-photo-nickname'):
                 self._author = (nicks[0].text or '').strip()
-        return self._author
+        return self._author or ''
 
     @property
     def media(self):

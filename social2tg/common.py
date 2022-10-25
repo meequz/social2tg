@@ -50,7 +50,7 @@ class Update:
 
     @property
     def author(self):
-        return self._author
+        return self._author or ''
 
     @property
     def date(self):
@@ -58,7 +58,7 @@ class Update:
 
     @property
     def text(self):
-        return self._text
+        return self._text or ''
 
     @property
     def media(self):
@@ -178,6 +178,7 @@ class SeleniumSource(Source):
                 ok = True
                 break
             except Exception as exc:
+                logger.error('Retrying because of error: %s', exc)
                 retry += 1
                 time.sleep(retry)
 
