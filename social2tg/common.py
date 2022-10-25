@@ -162,13 +162,18 @@ class SeleniumSource(Source):
     def init_session(self):
         self._browser = get_browser()
 
-    def get_soup(self, url):
+    def open(self, url):
         """
-        Load URL, wait a bit for JS to load, and return the souped DOM
+        Load URL, and wait a bit for JS to load
         """
         logger.info('browser.get: %s', url)
         self._browser.get(url)
         time.sleep(config.WAIT_BETWEEN)
+
+    def get_soup(self):
+        """
+        Return the souped DOM
+        """
         return BeautifulSoup(self._browser.page_source, 'html.parser')
 
 
@@ -177,21 +182,28 @@ class RequestsSource(Source):
     Mixin for any Source working with Requests
     """
     def init_session(self):
+        self._page_source = ''
         self._session = requests.session()
         if config.TOR_PROXY:
             self._session.proxies['http'] = 'socks5h://localhost:9050'
             self._session.proxies['https'] = 'socks5h://localhost:9050'
 
-    def get_soup(self, url):
+    def open(self, url):
         """
-        Load URL and return the souped DOM
+        Load URL, and wait a bit
         """
         logger.info('requests.get: %s', url)
         response = self._session.get(url, headers=HEADERS_LIKE_BROWSER)
         if response.status_code > 399:
             logger.info('Got %s status code', response.status_code)
         time.sleep(config.WAIT_BETWEEN)
-        return BeautifulSoup(response.text, 'html.parser')
+        self._page_source = response.text
+
+    def get_soup(self):
+        """
+        Return the souped DOM
+        """
+        return BeautifulSoup(self._page_source, 'html.parser')
 
 
 class DummyPost(Post):

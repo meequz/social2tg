@@ -140,14 +140,15 @@ class GramhirSource(InstagramSource):
         Get list of Post instances of posts
         which appeared after the last check
         """
-        soup = self.get_soup(self.url)
-        urls = self._parse_post_urls(soup)
+        self.open(self.url)
+        urls = self._parse_post_urls()
         if not urls:
             logger.info('Something went wrong, no last posts found on the page')
 
         posts = []
         for url in urls:
-            post = GramhirPost({'url': url, 'soup': self.get_soup(url)})
+            self.open(url)
+            post = GramhirPost({'url': url, 'soup': self.get_soup()})
             posts.append(post)
             time.sleep(2)
 
@@ -162,13 +163,14 @@ class GramhirSource(InstagramSource):
         # stories = self.get_last_stories()
         return posts
 
-    def _parse_post_urls(self, soup):
+    def _parse_post_urls(self):
         """
         Get post URLs from the provided profile soup
         """
         self._browser.scroll_up_down()
         self._browser.scroll_up_down()
         self._browser.scroll_up_down()
+        soup = self.get_soup()
 
         urls = []
         for div in soup.select('div.photo'):
