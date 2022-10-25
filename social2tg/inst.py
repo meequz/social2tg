@@ -167,6 +167,10 @@ class GramhirSource(InstagramSource):
         """
         Get post URLs from the provided profile soup
         """
+        self._browser.scroll_up_down()
+        self._browser.scroll_up_down()
+        self._browser.scroll_up_down()
+
         urls = []
         for div in soup.select('div.photo'):
             id_ = None
@@ -177,13 +181,7 @@ class GramhirSource(InstagramSource):
 
 
 class GramhirSeleniumSource(GramhirSource, SeleniumSource):
-
-    def get_last_posts(self):
-        self._browser.scroll_up_down()
-        self._browser.scroll_up_down()
-        self._browser.scroll_up_down()
-        last_posts = super().get_last_posts()
-        return last_posts
+    pass
 
 
 class GramhirRequestsSource(GramhirSource, RequestsSource):
