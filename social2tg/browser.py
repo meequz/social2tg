@@ -48,6 +48,7 @@ class FirefoxBrowser(webdriver.Firefox):
             logging.error(str(e))
 
     def scroll_up_down(self):
+        logger.info('Scrolling up and down in the browser')
         self.execute_script('window.scrollTo(0, 0)')
         time.sleep(1)
         self.execute_script('window.scrollTo(0, document.body.scrollHeight)')
