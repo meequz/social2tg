@@ -132,8 +132,7 @@ class GramhirSource(InstagramSource):
         self.init_session()
 
     def _construct_url(self, params):
-        host = params.get('host') or random.choice(['gramhir.com', 'picuki.com'])
-        url = f'https://{host}/profile/{params["id"]}'
+        url = f'https://gramhir.com/profile/{params["id"]}'
         return url
 
     def get_last_posts(self):
@@ -177,7 +176,9 @@ class GramhirSource(InstagramSource):
             if as_ := div.select('a'):
                 if href := as_[0].attrs.get('href'):
                     urls.append(href)
-        return urls[::-1]
+
+        urls = [u.replace('gramhir.com', 'picuki.com') for u in urls[::-1]]
+        return urls
 
 
 class GramhirSeleniumSource(GramhirSource, SeleniumSource):
