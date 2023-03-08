@@ -2,12 +2,11 @@ import random
 import time
 from importlib import import_module
 
-import requests
 from bs4 import BeautifulSoup
 from telegram import InputMediaPhoto, InputMediaVideo
 
 import config
-from .browser import destroy_browser, get_browser
+from .browser import destroy_browser, get_browser, get_reqclient
 from .constants import HEADERS_LIKE_BROWSER
 from .utils import get_logger, import_string
 
@@ -147,9 +146,39 @@ class Source:
     """
     Base for any Source class
     """
+    RETRIES = 6
+    last_resp_text = ''
+
     def __init__(self, name, params):
         self.name = name
         self.params = params
+
+    def open(self, url):
+        """
+        Load URL, and wait a bit for JS to load
+        """
+        ok = False
+        retry = 0
+        while retry < self.RETRIES:
+            try:
+                self.last_resp_text = self.http_get(url)
+                ok = True
+                break
+            except Exception as exc:
+                logger.error('Retrying because of error: %s', str(exc).strip())
+                retry += 1
+                time.sleep(retry * 2)
+
+        if ok:
+            time.sleep(config.WAIT_BETWEEN)
+        else:
+            raise ValueError('Enough retries! Give it a rest')
+
+    def get_soup(self):
+        """
+        Return the souped DOM
+        """
+        return BeautifulSoup(self.last_resp_text, 'html.parser')
 
     def get_updates(self):
         raise NotImplementedError
@@ -159,39 +188,16 @@ class SeleniumSource(Source):
     """
     Mixin for any Source working with Selenium
     """
-    RETRIES = 20
-
     def init_session(self):
-        self._browser = get_browser()
+        self._client = get_browser()
 
-    def open(self, url):
+    def http_get(self, url):
         """
-        Load URL, and wait a bit for JS to load
+        Just simply get, without retries or smth
         """
-        logger.info('browser.get: %s', url)
-
-        ok = False
-        retry = 0
-        while retry < self.RETRIES:
-            try:
-                self._browser.get(url)
-                ok = True
-                break
-            except Exception as exc:
-                logger.error('Retrying because of error: %s', exc)
-                retry += 1
-                time.sleep(retry)
-
-        if ok:
-            time.sleep(config.WAIT_BETWEEN)
-        else:
-            raise RuntimeError('Enough retries! Give it a rest')
-
-    def get_soup(self):
-        """
-        Return the souped DOM
-        """
-        return BeautifulSoup(self._browser.page_source, 'html.parser')
+        logger.info('selenium.get: %s', url)
+        self._client.get(url)
+        return self._client.page_source
 
 
 class RequestsSource(Source):
@@ -199,28 +205,17 @@ class RequestsSource(Source):
     Mixin for any Source working with Requests
     """
     def init_session(self):
-        self._page_source = ''
-        self._session = requests.session()
-        if config.TOR_PROXY:
-            self._session.proxies['http'] = 'socks5h://localhost:9050'
-            self._session.proxies['https'] = 'socks5h://localhost:9050'
+        self._client = get_reqclient()
 
-    def open(self, url):
+    def http_get(self, url):
         """
-        Load URL, and wait a bit
+        Just simply get, without retries or smth
         """
         logger.info('requests.get: %s', url)
-        response = self._session.get(url, headers=HEADERS_LIKE_BROWSER)
+        response = self._client.get(url, headers=HEADERS_LIKE_BROWSER)
         if response.status_code > 399:
-            logger.info('Got %s status code', response.status_code)
-        time.sleep(config.WAIT_BETWEEN)
-        self._page_source = response.text
-
-    def get_soup(self):
-        """
-        Return the souped DOM
-        """
-        return BeautifulSoup(self._page_source, 'html.parser')
+            raise ValueError(f'Got {response.status_code} status code')
+        return response.text
 
 
 class DummyPost(Post):
@@ -317,7 +312,8 @@ class Feed:
         """
         updates = []
         for src in self.sources:
-            updates.extend(src.get_updates())
+            src_updates = src.get_updates()
+            updates.extend(src_updates)
         return updates
 
     def publish(self, updates):

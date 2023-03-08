@@ -135,17 +135,24 @@ class GramhirSource(InstagramSource):
         url = f'https://gramhir.com/profile/{params["id"]}'
         return url
 
+    def open_profile(self):
+        try:
+            self.open(self.url)
+            for i in range(3):
+                self._client.scroll_up_down()
+        except Exception as exc:
+            logger.error('Cant open profile: %s', exc)
+
     def get_last_posts(self):
         """
         Get list of Post instances of posts
         which appeared after the last check
         """
-        self.open(self.url)
+        posts = []
         urls = self._parse_post_urls()
         if not urls:
             logger.info('Something went wrong, no last posts found on the page')
 
-        posts = []
         for url in urls:
             try:
                 self.open(url)
@@ -157,22 +164,27 @@ class GramhirSource(InstagramSource):
 
         return posts
 
+    def get_last_stories(self):
+        stories = []
+        # TODO
+        return stories
+
     def get_updates(self):
         """
         Get list of Update instances of update
         which appeared after the last check
         """
-        posts = self.get_last_posts()
-        # stories = self.get_last_stories()
-        return posts
+        updates = []
+        self.open_profile()
+
+        updates += self.get_last_posts()
+        updates += self.get_last_stories()
+        return updates
 
     def _parse_post_urls(self):
         """
         Get post URLs from the provided profile soup
         """
-        self._browser.scroll_up_down()
-        self._browser.scroll_up_down()
-        self._browser.scroll_up_down()
         soup = self.get_soup()
 
         urls = []

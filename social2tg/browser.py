@@ -1,5 +1,6 @@
 import time
 
+import requests
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
@@ -12,10 +13,35 @@ from .utils import get_logger
 
 
 _browser = None
+_reqclient = None
 logger = get_logger()
 
 
-class FirefoxBrowser(webdriver.Firefox):
+class Client:
+
+    def get(self):
+        raise NotImplementedError
+
+    def scroll_up_down(self):
+        pass
+
+
+class RequestsClient(Client):
+    """
+    Wrapper on Requests Session
+    """
+    def __init__(self):
+        self._session = requests.session()
+        if config.TOR_PROXY:
+            self._session.proxies['http'] = 'socks5h://localhost:9050'
+            self._session.proxies['https'] = 'socks5h://localhost:9050'
+
+    def get(self, url, *args, **kwargs):
+        resp = self._session.get(url, *args, **kwargs)
+        return resp
+
+
+class FirefoxBrowser(webdriver.Firefox, Client):
     """
     Wrapper on Selenium driver
     """
@@ -53,6 +79,16 @@ class FirefoxBrowser(webdriver.Firefox):
         time.sleep(1)
         self.execute_script('window.scrollTo(0, document.body.scrollHeight)')
         time.sleep(2)
+
+
+def get_reqclient():
+    """
+    Return requests client object, creating if necessarry
+    """
+    global _reqclient
+    if _reqclient is None:
+        _reqclient = RequestsClient()
+    return _reqclient
 
 
 def get_browser():
