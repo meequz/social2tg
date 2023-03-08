@@ -194,8 +194,8 @@ class GramhirSource(InstagramSource):
                 if href := as_[0].attrs.get('href'):
                     urls.append(href)
 
-        urls = [u.replace('gramhir.com', 'picuki.com') for u in urls[::-1]]
-        return urls
+        # ~ urls = [u.replace('gramhir.com', 'picuki.com') for u in urls]
+        return urls[::-1]
 
 
 class GramhirSeleniumSource(GramhirSource, SeleniumSource):

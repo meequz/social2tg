@@ -146,7 +146,7 @@ class Source:
     """
     Base for any Source class
     """
-    RETRIES = 6
+    RETRIES = 3
     last_resp_text = ''
 
     def __init__(self, name, params):
@@ -167,7 +167,7 @@ class Source:
             except Exception as exc:
                 logger.error('Retrying because of error: %s', str(exc).strip())
                 retry += 1
-                time.sleep(retry * 2)
+                time.sleep(retry * 4)
 
         if ok:
             time.sleep(config.WAIT_BETWEEN)
