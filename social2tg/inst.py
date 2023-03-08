@@ -147,9 +147,12 @@ class GramhirSource(InstagramSource):
 
         posts = []
         for url in urls:
-            self.open(url)
-            post = GramhirPost({'url': url, 'soup': self.get_soup()})
-            posts.append(post)
+            try:
+                self.open(url)
+            except Exception as exc:
+                logger.info('Skipping post %s because of error: %s', url, exc)
+            else:
+                posts.append(GramhirPost({'url': url, 'soup': self.get_soup()}))
             time.sleep(2)
 
         return posts
