@@ -264,6 +264,8 @@ class DummyTarget(Target):
         print(f'{media=}')
         print()
 
+        return True
+
 
 class Feed:
     """
@@ -327,10 +329,11 @@ class Feed:
                     logger.info('%s for %s already published', update, self)
                     continue
 
-                target.publish(update)
-
-                logger.info('Remember: %s published in %s', update, self)
-                self.storage.remember_published(update, self)
+                if published := target.publish(update):
+                    logger.info('Remember: %s published in %s', update, self)
+                    self.storage.remember_published(update, self)
+                else:
+                    logger.error('Error, %s not published in %s', update, target)
 
 
 def cleanup():

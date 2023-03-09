@@ -3,9 +3,14 @@ import time
 
 import config
 from social2tg.common import Feed, cleanup
+from social2tg.utils import get_logger
+
+
+logger = get_logger()
 
 
 def restart_tor():
+    logger.info('Restarting Tor')
     os.system('sudo systemctl restart tor')
     time.sleep(10)
 

@@ -54,8 +54,9 @@ class TelethonChatTarget(TelegramTarget):
         """
         text, footer, media = update.to_internal()
         text, footer, media = self.to_target(text, footer, media)
-        resp = client.send_message(self.params['chat_id'], text + footer)
-        return resp
+        if text or media:  # TODO: add media
+            resp = client.send_message(self.params['chat_id'], text + footer)
+            return True
 
     def publish(self, update):
         logger.info('Publish %s in %s', update, self.name)
@@ -111,16 +112,18 @@ class PtbChatTarget(PtbTarget):
 
         text, footer, media = update.to_internal()
         text, footer, media = self.to_target(text, footer, media)
-        text = text + footer
 
-        ptb_media = []
-        if media:
-            md_0 = media.pop(0)
-            ptb_md_0 = md_0.convert_to_ptb(caption=text)
-            ptb_media = [ptb_md_0] + [md.convert_to_ptb() for md in media]
+        if text or media:
+            text = text + footer
 
-        resp = self._tg_exec(self._publish, text, ptb_media)
-        return resp
+            ptb_media = []
+            if media:
+                md_0 = media.pop(0)
+                ptb_md_0 = md_0.convert_to_ptb(caption=text)
+                ptb_media = [ptb_md_0] + [md.convert_to_ptb() for md in media]
+
+            resp = self._tg_exec(self._publish, text, ptb_media)
+            return True
 
 
 class PtbBotTarget(PtbTarget):

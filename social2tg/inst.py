@@ -1,6 +1,7 @@
 import random
 import time
 
+import config
 from .common import Image, Post, RequestsSource, SeleniumSource, Source, Video
 from .utils import find_elem, get_logger
 
@@ -132,7 +133,7 @@ class GramhirSource(InstagramSource):
         self.init_session()
 
     def _construct_url(self, params):
-        url = f'https://gramhir.com/profile/{params["id"]}'
+        url = f'https://{config.GRAMHIR_HOST}/profile/{params["id"]}'
         return url
 
     def open_profile(self):
@@ -194,7 +195,7 @@ class GramhirSource(InstagramSource):
                 if href := as_[0].attrs.get('href'):
                     urls.append(href)
 
-        # ~ urls = [u.replace('gramhir.com', 'picuki.com') for u in urls]
+        # urls = [u.replace('gramhir.com', 'picuki.com') for u in urls]
         return urls[::-1]
 
 
