@@ -32,7 +32,7 @@ class RequestsClient(Client):
     Wrapper on Requests Session
     """
     def __init__(self):
-        if settings.REQUESTS_CLOUDSCRAPER:
+        if config.REQUESTS_CLOUDSCRAPER:
             self._session = cloudscraper.CloudScraper()
         else:
             self._session = requests.session()
