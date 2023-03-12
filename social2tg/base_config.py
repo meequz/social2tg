@@ -11,3 +11,5 @@ TOR_PROXY = False
 WAIT_BETWEEN = 3
 
 GRAMHIR_HOST = 'picuki.com'  # or 'gramhir.com'
+
+REQUESTS_CLOUDSCRAPER = True

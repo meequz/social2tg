@@ -1,5 +1,6 @@
 import time
 
+import cloudscraper
 import requests
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -31,7 +32,11 @@ class RequestsClient(Client):
     Wrapper on Requests Session
     """
     def __init__(self):
-        self._session = requests.session()
+        if settings.REQUESTS_CLOUDSCRAPER:
+            self._session = cloudscraper.CloudScraper()
+        else:
+            self._session = requests.session()
+
         if config.TOR_PROXY:
             self._session.proxies['http'] = 'socks5h://localhost:9050'
             self._session.proxies['https'] = 'socks5h://localhost:9050'
