@@ -161,7 +161,7 @@ class GramhirSource(InstagramSource):
                 logger.info('Skipping post %s because of error: %s', url, exc)
             else:
                 posts.append(GramhirPost({'url': url, 'soup': self.get_soup()}))
-            time.sleep(2)
+            time.sleep(config.BETWEEN_POSTS_DELAY)
 
         return posts
 

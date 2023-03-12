@@ -20,7 +20,7 @@ def process_feed(name):
     feed = Feed(name, feed_params)
     updates = feed.gather()
     feed.publish(updates)
-    time.sleep(1)
+    time.sleep(config.BETWEEN_SOURCES_DELAY)
 
 
 def main():
