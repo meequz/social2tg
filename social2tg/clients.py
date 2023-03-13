@@ -10,6 +10,7 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 
 import config
+from .constants import HEADERS_LIKE_BROWSER
 from .utils import get_logger
 
 
@@ -42,6 +43,11 @@ class RequestsClient(Client):
             self._session.proxies['https'] = 'socks5h://localhost:9050'
 
     def get(self, url, *args, **kwargs):
+        headers = kwargs.get('headers', {})
+        if not config.REQUESTS_CLOUDSCRAPER:
+            headers.update(HEADERS_LIKE_BROWSER)
+            kwargs['headers'] = headers
+
         resp = self._session.get(url, *args, **kwargs)
         return resp
 

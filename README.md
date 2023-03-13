@@ -23,9 +23,9 @@ TODO:
     - https://insta-stories-viewer.com/
     - https://www.exploreig.com/
     - https://imginn.org/
-- https://github.com/venomous/cloudscraper backend
 - PhantomJS backend
 - Chrome driver backend
+- https://playwright.dev/python/docs/intro backend
 - https://github.com/adw0rd/instagrapi backend
 - posting video
 - if there is 1 media and long caption, replace the media with web preview to place more text

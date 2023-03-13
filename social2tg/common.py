@@ -6,8 +6,7 @@ from bs4 import BeautifulSoup
 from telegram import InputMediaPhoto, InputMediaVideo
 
 import config
-from .browser import destroy_browser, get_browser, get_reqclient
-from .constants import HEADERS_LIKE_BROWSER
+from .clients import destroy_browser, get_browser, get_reqclient
 from .utils import get_logger, import_string
 
 
@@ -212,7 +211,7 @@ class RequestsSource(Source):
         Just simply get, without retries or smth
         """
         logger.info('requests.get: %s', url)
-        response = self._client.get(url, headers=HEADERS_LIKE_BROWSER)
+        response = self._client.get(url)
         if response.status_code > 399:
             raise ValueError(f'Got {response.status_code} status code')
         return response.text
