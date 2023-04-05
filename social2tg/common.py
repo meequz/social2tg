@@ -5,7 +5,7 @@ from importlib import import_module
 from bs4 import BeautifulSoup
 from telegram import InputMediaPhoto, InputMediaVideo
 
-import config
+import CONFIG
 from .clients import destroy_browser, get_browser, get_reqclient
 from .utils import get_logger, import_string
 
@@ -169,7 +169,7 @@ class Source:
                 time.sleep(retry * 10)
 
         if ok:
-            time.sleep(config.delay_after_any_request)
+            time.sleep(CONFIG.delay_after_any_request)
         else:
             raise ValueError('Retries limit reached')
 
@@ -283,13 +283,13 @@ class Feed:
 
         self.sources = []
         for name in params['sources']:
-            src = config.sources[name]
+            src = CONFIG.sources[name]
             source = import_string(src['class'])(name, src)
             self.sources.append(source)
 
         self.targets = []
         for name in params['targets']:
-            trg = config.targets[name]
+            trg = CONFIG.targets[name]
             target = import_string(trg['class'])(name, trg)
             self.targets.append(target)
 

@@ -11,7 +11,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 
-import config
+import CONFIG
 from .constants import HEADERS_LIKE_BROWSER
 from .utils import get_logger
 
@@ -37,7 +37,7 @@ class RequestsClient(Client):
     def __init__(self):
         self._session = requests.session()
 
-        if config.tor_proxy:
+        if CONFIG.tor_proxy:
             self._session.proxies['http'] = 'socks5h://localhost:9050'
             self._session.proxies['https'] = 'socks5h://localhost:9050'
 
@@ -59,13 +59,13 @@ class FirefoxBrowser(webdriver.Firefox, Client):
     """
     def __init__(self):
         options = Options()
-        options.headless = config.browser_headless
+        options.headless = CONFIG.browser_headless
 
         options.set_preference('permissions.default.image', 2)
         options.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', False)
         options.set_preference('places.history.enabled', False)
 
-        if config.tor_proxy:
+        if CONFIG.tor_proxy:
             options.set_preference("network.dns.blockDotOnion", False)
             options.set_preference("network.proxy.type", 1)
             options.set_preference("network.proxy.socks_version", 5)

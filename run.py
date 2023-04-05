@@ -1,7 +1,7 @@
 import os
 import time
 
-import config
+import CONFIG
 from social2tg.common import Feed, cleanup
 from social2tg.utils import get_logger
 
@@ -16,21 +16,21 @@ def restart_tor():
 
 
 def process_feed(name):
-    feed_params = config.feeds[name]
+    feed_params = CONFIG.feeds[name]
     feed = Feed(name, feed_params)
     updates = feed.gather()
     feed.publish(updates)
-    time.sleep(config.delay_after_source)
+    time.sleep(CONFIG.delay_after_source)
 
 
 def main():
     """
     Gather updates and publish it for each Feed from settings
     """
-    if config.tor_proxy:
+    if CONFIG.tor_proxy:
         restart_tor()
 
-    for feed_name in config.feeds:
+    for feed_name in CONFIG.feeds:
         process_feed(feed_name)
 
     cleanup()

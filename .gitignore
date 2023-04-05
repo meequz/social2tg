@@ -131,6 +131,7 @@ dmypy.json
 
 
 config.py
+CONFIG.py
 log.txt
 *.session
 trash
