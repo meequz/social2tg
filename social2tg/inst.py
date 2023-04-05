@@ -3,7 +3,7 @@ import time
 
 import config
 from .common import Image, Post, RequestsSource, SeleniumSource, Source, Video
-from .utils import find_elem, get_logger
+from .utils import find_elem, get_logger, ip_in_string
 
 
 logger = get_logger()
@@ -133,7 +133,10 @@ class GramhirSource(InstagramSource):
         self.init_session()
 
     def _construct_url(self, params):
-        url = f'https://{config.GRAMHIR_HOST}/profile/{params["id"]}'
+        if 'gramhir' not in config.gramhir_host:
+            profile_id = params['id'].split('/')[0]
+
+        url = f'https://{config.gramhir_host}/profile/{profile_id}'
         return url
 
     def open_profile(self):
@@ -161,7 +164,7 @@ class GramhirSource(InstagramSource):
                 logger.info('Skipping post %s because of error: %s', url, exc)
             else:
                 posts.append(GramhirPost({'url': url, 'soup': self.get_soup()}))
-            time.sleep(config.BETWEEN_POSTS_DELAY)
+            time.sleep(config.delay_after_post)
 
         return posts
 
@@ -195,7 +198,9 @@ class GramhirSource(InstagramSource):
                 if href := as_[0].attrs.get('href'):
                     urls.append(href)
 
-        # urls = [u.replace('gramhir.com', 'picuki.com') for u in urls]
+        if ip_in_string(config.gramhir_host):
+            urls = [u.replace(config.gramhir_host_header, config.gramhir_host) for u in urls]
+
         return urls[::-1]
 
 
@@ -204,4 +209,11 @@ class GramhirSeleniumSource(GramhirSource, SeleniumSource):
 
 
 class GramhirRequestsSource(GramhirSource, RequestsSource):
-    pass
+
+    def http_get(self, url, headers=None):
+        headers = headers or {}
+        if ip_in_string(url) and not headers.get('Host'):
+            headers['Host'] = config.gramhir_host_header
+
+        resp = super().http_get(url, headers=headers)
+        return resp

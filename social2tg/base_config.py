@@ -1,18 +1,17 @@
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
+base_dir = Path(__file__).resolve(strict=True).parent.parent
 
 
-LOG_PATH = BASE_DIR / 'log.txt'
+log_path = base_dir / 'log.txt'
 
-BROWSER_HEADLESS = True
-TOR_PROXY = False
-WAIT_BETWEEN = 3
+browser_headless = True
+tor_proxy = False
 
-GRAMHIR_HOST = 'picuki.com'  # or 'gramhir.com'
+gramhir_host = '167.172.252.123'  # or 'gramhir.com', 'picuki.com', 'www.picuki.com'
+gramhir_host_header = 'www.picuki.com'
 
-REQUESTS_CLOUDSCRAPER = True
-
-BETWEEN_POSTS_DELAY = 61
-BETWEEN_SOURCES_DELAY = 121
+delay_after_post = 3
+delay_after_source = 5
+delay_after_any_request = 3

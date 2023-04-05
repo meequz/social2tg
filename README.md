@@ -2,8 +2,16 @@
 Feeds from various social networks to Telegram. Currently only Instagram (posts) is supported
 
 
+To add new feed:
+- create tg channel, set avatar
+- add bot, make it admin
+- curl https://api.telegram.org/bot{TOKEN}/getUpdates
+- obtain channel ID. Add 100 to it at the beginning, keeping "-" sign at the very beginning, if necessarry
+- create source, target, and a feed in config.py
+
 
 TODO:
+- lowercase all the config vars
 - implement other Instagram providers
     - https://www.picuki.com
     - https://www.pixwox.com
@@ -44,3 +52,4 @@ TODO:
     - by manual approval
     - ability to edit caption
 - facebook as a source
+- reddit as a source

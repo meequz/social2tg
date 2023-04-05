@@ -166,12 +166,12 @@ class Source:
             except Exception as exc:
                 logger.error('Retrying because of error: %s', str(exc).strip())
                 retry += 1
-                time.sleep(retry * 4)
+                time.sleep(retry * 10)
 
         if ok:
-            time.sleep(config.WAIT_BETWEEN)
+            time.sleep(config.delay_after_any_request)
         else:
-            raise ValueError('Enough retries! Give it a rest')
+            raise ValueError('Retries limit reached')
 
     def get_soup(self):
         """
@@ -206,12 +206,13 @@ class RequestsSource(Source):
     def init_session(self):
         self._client = get_reqclient()
 
-    def http_get(self, url):
+    def http_get(self, url, headers=None):
         """
         Just simply get, without retries or smth
         """
         logger.info('requests.get: %s', url)
-        response = self._client.get(url)
+        headers = headers or {}
+        response = self._client.get(url, headers=headers)
         if response.status_code > 399:
             raise ValueError(f'Got {response.status_code} status code')
         return response.text

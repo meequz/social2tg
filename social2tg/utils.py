@@ -1,4 +1,5 @@
 import logging
+import re
 from importlib import import_module
 
 import config
@@ -28,7 +29,7 @@ def get_logger():
         logging.basicConfig(format=log_format, level=logging.INFO)
         _LOGGER = logging.getLogger(__name__)
 
-        if log_path := config.LOG_PATH:
+        if log_path := config.log_path:
             file_handler = logging.FileHandler(log_path)
             file_handler.setLevel(logging.INFO)
             file_handler.setFormatter(logging.Formatter(log_format))
@@ -43,3 +44,7 @@ def find_elem(soup, selector, index=0):
     """
     if elements := soup.select(selector):
         return elements[index]
+
+
+def ip_in_string(string):
+    return re.search(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", string)

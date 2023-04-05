@@ -1,6 +1,8 @@
+import warnings
+warnings.filterwarnings('ignore')
+
 import time
 
-import cloudscraper
 import requests
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -33,20 +35,19 @@ class RequestsClient(Client):
     Wrapper on Requests Session
     """
     def __init__(self):
-        if config.REQUESTS_CLOUDSCRAPER:
-            self._session = cloudscraper.CloudScraper()
-        else:
-            self._session = requests.session()
+        self._session = requests.session()
 
-        if config.TOR_PROXY:
+        if config.tor_proxy:
             self._session.proxies['http'] = 'socks5h://localhost:9050'
             self._session.proxies['https'] = 'socks5h://localhost:9050'
 
     def get(self, url, *args, **kwargs):
-        headers = kwargs.get('headers', {})
-        if not config.REQUESTS_CLOUDSCRAPER:
-            headers.update(HEADERS_LIKE_BROWSER)
-            kwargs['headers'] = headers
+        headers = HEADERS_LIKE_BROWSER.copy()
+        headers.update(kwargs.get('headers', {}))
+        kwargs['headers'] = headers
+
+        if not kwargs.get('verify'):
+            kwargs['verify'] = False
 
         resp = self._session.get(url, *args, **kwargs)
         return resp
@@ -58,13 +59,13 @@ class FirefoxBrowser(webdriver.Firefox, Client):
     """
     def __init__(self):
         options = Options()
-        options.headless = config.BROWSER_HEADLESS
+        options.headless = config.browser_headless
 
         options.set_preference('permissions.default.image', 2)
         options.set_preference('dom.ipc.plugins.enabled.libflashplayer.so', False)
         options.set_preference('places.history.enabled', False)
 
-        if config.TOR_PROXY:
+        if config.tor_proxy:
             options.set_preference("network.dns.blockDotOnion", False)
             options.set_preference("network.proxy.type", 1)
             options.set_preference("network.proxy.socks_version", 5)

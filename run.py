@@ -20,14 +20,14 @@ def process_feed(name):
     feed = Feed(name, feed_params)
     updates = feed.gather()
     feed.publish(updates)
-    time.sleep(config.BETWEEN_SOURCES_DELAY)
+    time.sleep(config.delay_after_source)
 
 
 def main():
     """
     Gather updates and publish it for each Feed from settings
     """
-    if config.TOR_PROXY:
+    if config.tor_proxy:
         restart_tor()
 
     for feed_name in config.FEEDS:
