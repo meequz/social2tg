@@ -7,13 +7,12 @@ To add new feed:
 - add bot, make it admin
 - curl https://api.telegram.org/bot{TOKEN}/getUpdates
 - obtain channel ID. Add 100 to it at the beginning, keeping "-" sign at the very beginning, if necessarry
-- create source, target, and a feed in config.py
+- create source, target, and a feed in CONFIG.py
 
 
 TODO:
-- lowercase all the config vars
+- make config format based on classes, not dicts
 - implement other Instagram providers
-    - https://www.picuki.com
     - https://www.pixwox.com
     - https://greatfon.com/
     - https://dumpor.com (not so simiar)
@@ -35,7 +34,6 @@ TODO:
 - Chrome driver backend
 - https://playwright.dev/python/docs/intro backend
 - https://github.com/adw0rd/instagrapi backend
-- posting video
 - if there is 1 media and long caption, replace the media with web preview to place more text
 - replace convert_to_ptb() with tg-specific classes. Also ptb_media in tg.PtbChatTarget.publish is what should be returned from to_target()
 - ability to run "run.py" with feeds as arguments

@@ -16,7 +16,7 @@ def restart_tor():
 
 
 def process_feed(name):
-    feed_params = config.FEEDS[name]
+    feed_params = config.feeds[name]
     feed = Feed(name, feed_params)
     updates = feed.gather()
     feed.publish(updates)
@@ -30,7 +30,7 @@ def main():
     if config.tor_proxy:
         restart_tor()
 
-    for feed_name in config.FEEDS:
+    for feed_name in config.feeds:
         process_feed(feed_name)
 
     cleanup()

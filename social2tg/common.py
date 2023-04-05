@@ -283,13 +283,13 @@ class Feed:
 
         self.sources = []
         for name in params['sources']:
-            src = config.SOURCES[name]
+            src = config.sources[name]
             source = import_string(src['class'])(name, src)
             self.sources.append(source)
 
         self.targets = []
         for name in params['targets']:
-            trg = config.TARGETS[name]
+            trg = config.targets[name]
             target = import_string(trg['class'])(name, trg)
             self.targets.append(target)
 
