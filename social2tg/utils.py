@@ -2,7 +2,7 @@ import logging
 import re
 from importlib import import_module
 
-import config
+import CONFIG
 
 
 _LOGGER = None
@@ -29,7 +29,7 @@ def get_logger():
         logging.basicConfig(format=log_format, level=logging.INFO)
         _LOGGER = logging.getLogger(__name__)
 
-        if log_path := config.log_path:
+        if log_path := CONFIG.log_path:
             file_handler = logging.FileHandler(log_path)
             file_handler.setLevel(logging.INFO)
             file_handler.setFormatter(logging.Formatter(log_format))
