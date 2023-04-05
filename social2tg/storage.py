@@ -2,7 +2,7 @@ import sqlite3
 import time
 from contextlib import contextmanager
 
-import config
+import CONFIG
 
 
 class Storage:
