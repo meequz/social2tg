@@ -13,6 +13,7 @@ To add new feed:
 TODO:
 - make config format based on classes, not dicts
 - implement other Instagram providers
+    - https://www.tumbig.com/
     - https://www.pixwox.com
     - https://greatfon.com/
     - https://dumpor.com (not so simiar)
