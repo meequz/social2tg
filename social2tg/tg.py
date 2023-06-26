@@ -85,13 +85,15 @@ class PtbChatTarget(PtbTarget):
         """
         resp = None
         try:
-            resp = action(*args)
-            time.sleep(2)
-        except RetryAfter as exc:
-            wait = int(exc.retry_after)
-            logger.info('Flood limit detected, waiting for %s seconds', wait)
-            time.sleep(wait + 1)
-            resp = action(*args)
+            try:
+                resp = action(*args)
+                time.sleep(2)
+            except RetryAfter as exc:
+                wait = int(exc.retry_after)
+                logger.info('Flood limit detected, waiting for %s seconds', wait)
+                time.sleep(wait + 1)
+                resp = action(*args)
+
         except telegram.error.BadRequest as exc:
             logger.error("Fail executing TG action %s: %s", action, exc)
 
