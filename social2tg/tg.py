@@ -21,8 +21,7 @@ class TelegramTarget(Target):
     text_limit = 4096
 
     def to_target(self, text, footer, media):
-        if self.params.get('no_footer'):
-            footer = ''
+        footer = '' if self.params.get('no_footer') else footer
 
         ending = '...'
         limit = self.caption_limit if media else self.text_limit

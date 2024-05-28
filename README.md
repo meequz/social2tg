@@ -3,8 +3,9 @@ Feeds from various social networks to Telegram. Currently only Instagram (posts)
 
 
 To add new feed:
-- create tg channel, set avatar
+- create tg channel
 - add bot, make it admin
+- set avatar
 - curl https://api.telegram.org/bot{TOKEN}/getUpdates
 - obtain channel ID. Add 100 to it at the beginning, keeping "-" sign at the very beginning, if necessarry
 - create source, target, and a feed in CONFIG.py
@@ -52,3 +53,9 @@ TODO:
     - ability to edit caption
 - facebook as a source
 - reddit as a source
+
+
+## Find IP behind Cloudflare:
+- https://search.censys.io/
+- https://www.shodan.io/
+- https://securitytrails.com/
