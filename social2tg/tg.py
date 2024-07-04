@@ -1,5 +1,6 @@
-import time
 import datetime
+import os
+import time
 
 import telegram
 from telegram.error import RetryAfter
@@ -86,6 +87,11 @@ class PtbChatTarget(PtbTarget):
         """
         Execute provided action
         """
+        # Clear proxies
+        http_proxy, https_proxy = os.environ['http_proxy'], os.environ['https_proxy']
+        del os.environ['http_proxy']
+        del os.environ['https_proxy']
+
         resp = None
         try:
             try:
@@ -99,6 +105,9 @@ class PtbChatTarget(PtbTarget):
 
         except telegram.error.BadRequest as exc:
             logger.error("Fail executing TG action %s: %s", action, exc)
+
+        # Return proxies
+        os.environ['http_proxy'], os.environ['https_proxy'] = http_proxy, https_proxy
 
         return resp
 
