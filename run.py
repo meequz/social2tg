@@ -9,7 +9,10 @@ from social2tg.utils import get_logger
 logger = get_logger()
 
 
-def restart_tor():
+def enable_tor():
+    os.environ['http_proxy'] = 'socks5h://localhost:9050'
+    os.environ['https_proxy'] = 'socks5h://localhost:9050'
+
     logger.info('Restarting Tor')
     os.system('sudo systemctl restart tor')
     time.sleep(10)
@@ -28,9 +31,7 @@ def main():
     Gather updates and publish it for each Feed from settings
     """
     if CONFIG.tor_proxy:
-        restart_tor()
-        os.environ['http_proxy'] = 'socks5h://localhost:9050'
-        os.environ['https_proxy'] = 'socks5h://localhost:9050'
+        enable_tor()
 
     for feed_name in CONFIG.feeds:
         process_feed(feed_name)

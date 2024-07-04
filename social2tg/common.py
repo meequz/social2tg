@@ -316,7 +316,7 @@ class Feed:
             try:
                 updates.extend(src.get_updates())
             except Exception as exc:
-                logger.error(exc)
+                logger.exception(exc)
 
         return updates
 
