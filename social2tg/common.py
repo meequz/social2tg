@@ -313,8 +313,11 @@ class Feed:
         """
         updates = []
         for src in self.sources:
-            src_updates = src.get_updates()
-            updates.extend(src_updates)
+            try:
+                updates.extend(src.get_updates())
+            except Exception as exc:
+                logger.error(exc)
+
         return updates
 
     def publish(self, updates):

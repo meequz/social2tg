@@ -238,8 +238,9 @@ class InstaloaderSource(InstagramSource):
         posts = []
         for idx, ilpost in enumerate(self._profile.get_posts()):
             posts.append(InstaloaderPost(ilpost))
-            if idx > 20:
+            if idx > 10:
                 break
+            time.sleep(CONFIG.delay_after_post)
 
         return posts
 
