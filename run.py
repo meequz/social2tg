@@ -1,4 +1,5 @@
 import os
+import ssl
 import time
 
 import CONFIG
@@ -9,13 +10,22 @@ from social2tg.utils import get_logger
 logger = get_logger()
 
 
-def enable_tor():
-    os.environ['http_proxy'] = 'socks5h://localhost:9050'
-    os.environ['https_proxy'] = 'socks5h://localhost:9050'
+def handle_connection():
+    if CONFIG.disable_ssl:
+        ssl.SSLContext.verify_mode = property(
+            lambda self: ssl.CERT_NONE, lambda self, newval: None)
 
-    logger.info('Restarting Tor')
-    os.system('sudo systemctl restart tor')
-    time.sleep(10)
+    if CONFIG.tor_proxy:
+        os.environ['http_proxy'] = 'socks5h://localhost:9050'
+        os.environ['https_proxy'] = 'socks5h://localhost:9050'
+
+        logger.info('Restarting Tor')
+        os.system('sudo systemctl restart tor')
+        time.sleep(10)
+
+    elif CONFIG.proxy:
+        os.environ['http_proxy'] = CONFIG.proxy
+        os.environ['https_proxy'] = CONFIG.proxy
 
 
 def process_feed(name):
@@ -30,8 +40,7 @@ def main():
     """
     Gather updates and publish it for each Feed from settings
     """
-    if CONFIG.tor_proxy:
-        enable_tor()
+    handle_connection()
 
     for feed_name in CONFIG.feeds:
         process_feed(feed_name)
