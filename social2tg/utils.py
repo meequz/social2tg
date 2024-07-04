@@ -25,7 +25,7 @@ def get_logger():
 
     if _LOGGER is None:
 
-        log_format = f'%(asctime)s %(levelname)s: %(message)s'
+        log_format = '%(asctime)s %(levelname)s: %(message)s'
         logging.basicConfig(format=log_format, level=logging.INFO)
         _LOGGER = logging.getLogger(__name__)
 

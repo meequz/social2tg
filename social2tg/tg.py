@@ -47,7 +47,6 @@ class TelethonChatTarget(TelegramTarget):
             try:
                 action(client, *args)
             except FloodWaitError as exc:
-                wait_time = datetime.timedelta(seconds=exc.seconds)
                 time.sleep(exc.seconds + 1)
                 action(client, *args)
             time.sleep(2)

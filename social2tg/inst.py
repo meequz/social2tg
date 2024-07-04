@@ -1,4 +1,4 @@
-import random
+import instaloader
 import time
 
 import CONFIG
@@ -193,7 +193,6 @@ class GramhirSource(InstagramSource):
 
         urls = []
         for div in soup.select('div.photo'):
-            id_ = None
             if as_ := div.select('a'):
                 if href := as_[0].attrs.get('href'):
                     urls.append(href)
@@ -217,3 +216,86 @@ class GramhirRequestsSource(GramhirSource, RequestsSource):
 
         resp = super().http_get(url, headers=headers)
         return resp
+
+
+class InstaloaderSource(InstagramSource):
+    """
+    Instagram client that uses instaloader lib
+    """
+    def __init__(self, name, params):
+        super().__init__(name, params)
+        self.nickname = params['id']
+        self._il = instaloader.Instaloader()
+
+    def open_profile(self):
+        return instaloader.Profile.from_username(self._il.context, self.nickname)
+
+    def get_last_posts(self):
+        """
+        Get list of Post instances of posts
+        which appeared after the last check
+        """
+        posts = []
+        for idx, ilpost in enumerate(self._profile.get_posts()):
+            posts.append(InstaloaderPost(ilpost))
+            if idx > 20:
+                break
+
+        return posts
+
+    def get_last_stories(self):
+        stories = []
+        # TODO
+        return stories
+
+    def get_updates(self):
+        """
+        Get list of Update instances of update
+        which appeared after the last check
+        """
+        updates = []
+        self._profile = self.open_profile()
+
+        updates += self.get_last_posts()
+        updates += self.get_last_stories()
+        return updates
+
+
+class InstaloaderPost(InstagramPost):
+    """
+    Post handler for Instaloader source
+    """
+    def __init__(self, ilpost):
+        self._author = f'@{ilpost.owner_username}'
+        self._date = ilpost.date_utc
+        self._text = ilpost.caption
+        self._url = f'https://www.instagram.com/p/{ilpost.shortcode}'
+        self._ilpost = ilpost
+
+        self.orig_post_id = ilpost.shortcode
+
+    @property
+    def identifier(self):
+        return self.orig_post_id
+
+    @property
+    def media(self):
+        """
+        Gather post images and videos in one list
+        """
+        if self._media is None:
+            self._media = []
+
+            for node in self._ilpost.get_sidecar_nodes():
+                if node.is_video:
+                    self._media.append(Video(url=node.video_url))
+                else:
+                    self._media.append(Image(url=node.display_url))
+
+            if not self._media:
+                if self._ilpost.is_video:
+                    self._media.append(Video(url=self._ilpost.video_url))
+                else:
+                    self._media.append(Image(url=self._ilpost.url))
+
+        return self._media

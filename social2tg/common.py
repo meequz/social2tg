@@ -1,6 +1,5 @@
 import random
 import time
-from importlib import import_module
 
 from bs4 import BeautifulSoup
 from telegram import InputMediaPhoto, InputMediaVideo

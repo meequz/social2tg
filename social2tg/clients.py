@@ -83,7 +83,7 @@ class FirefoxBrowser(webdriver.Firefox, Client):
         try:
             return self.find_element(By.CSS_SELECTOR, selector)
         except NoSuchElementException as e:
-            logging.error(str(e))
+            logger.error(str(e))
 
     def scroll_up_down(self):
         logger.info('Scrolling up and down in the browser')
